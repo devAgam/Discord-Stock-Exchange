@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id        Int    @id @default(autoincrement())
+  discordId String @unique
+
+  portfolio portfolio[]
+}
+
+model portfolio {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  //    one to one relationship with user
+  user     user      @relation(fields: [userId], references: [id])
+  userId   Int
+  holdings holding[]
+}
+
+model holding {
+  id          Int        @id @default(autoincrement())
+  stockId     Int
+  quantity    Int        @default(0)
+  portfolio   portfolio? @relation(fields: [portfolioId], references: [id])
+  portfolioId Int?
+  //    one to many relationship with stock
+  stock       stock      @relation(fields: [stockId], references: [id])
+  avgPrice    Float      @default(0)
+}
+
+model stock {
+  id           Int       @id @default(autoincrement())
+  name         String    @unique
+  tickerSymbol String    @unique
+  holding      holding[]
+}
+
+model guilds {
+  id    Int    @id @default(autoincrement())
+  guild String @unique
+}
