@@ -37,7 +37,7 @@ model holding {
 
 model stock {
   id           Int       @id @default(autoincrement())
-  name         String    @unique
+  name         String
   tickerSymbol String    @unique
   holding      holding[]
 }
