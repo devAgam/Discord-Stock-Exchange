@@ -29,3 +29,9 @@ export async function getStockByTicker(ticker: string) {
   });
   return stock;
 }
+
+export async function bulkCreateStocks(stocks: any[]) {
+  return prisma.stock.createMany({
+    data: stocks,
+  });
+}
