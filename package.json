@@ -4,7 +4,7 @@
   "description": "A discord bot to track your PF's CMP and Gain ",
   "main": "main.ts",
   "scripts": {
-    "start": "ts-node main.ts",
+    "start": "node dist/main.js",
     "dev": "nodemon main.ts",
     "build": "tsc"
   },

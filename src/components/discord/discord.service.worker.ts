@@ -38,11 +38,14 @@ const commands = [] as any;
 // Read all files in the commands directory
 const commandFiles = fs
   .readdirSync(path.join(__dirname, "commands"))
-  .filter((file) => file.endsWith(".command.ts"));
-
+  .filter((file) => file.endsWith(".ts") || file.endsWith(".js"));
+// regex for files that end with ts or js
+// .filter((file) => file.endsWith(".ts") || file.endsWith(".js"));
 // Register all commands
 for (const file of commandFiles) {
-  const command = require(`./commands/${file}`);
+  // file path should be redudant
+  const filePath = path.join(__dirname, "commands", file);
+  const command = require(filePath);
   commands.push(command.data.toJSON());
   client.commands.set(command.data.name, command);
   console.log(`Registered command: ${command.data.name}`);
