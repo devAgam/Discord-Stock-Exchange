@@ -1,13 +1,13 @@
 //  USER PORTFOLIO FUNCTIONS
 
 import { PrismaClient } from "@prisma/client";
-import { getStockByTicker } from "./stocks.functions";
-import { getLTP, getMultipleLTPs } from "nse-quotes-api";
+import { getStockByTicker, stockPriceIsInDayRange } from "./stocks.functions";
+import { getLTP, getMultipleLTPs } from "yahoo-nse-api";
 
 const prisma = new PrismaClient();
 
 export async function createPortfolio(name: string, userId: number) {
-  return await prisma.portfolio.create({
+  return prisma.portfolio.create({
     data: {
       name: name,
       userId: userId,
@@ -16,7 +16,7 @@ export async function createPortfolio(name: string, userId: number) {
 }
 
 export async function getPortfolioById(id: number) {
-  return await prisma.portfolio.findUnique({
+  return prisma.portfolio.findUnique({
     where: {
       id: id,
     },
@@ -220,7 +220,8 @@ export async function sellStockByDiscordId(
 export async function addStockToPortfolioByDiscordId(
   discordId: string,
   stockSymbol: string,
-  stockQuantity: number
+  stockQuantity: number,
+  price: number
 ) {
   let msgStr;
   const user = await prisma.user.findUnique({
@@ -244,6 +245,19 @@ export async function addStockToPortfolioByDiscordId(
     return {
       error: "Stock does not exist",
       httpStatus: 404,
+      message: msgStr,
+      success: false,
+      data: {},
+    };
+  }
+
+  const isInRange = await stockPriceIsInDayRange(stockSymbol, "2d", price);
+
+  if (!isInRange) {
+    msgStr = "Price is not in day range";
+    return {
+      error: "Price is not in day range",
+      httpStatus: 400,
       message: msgStr,
       success: false,
       data: {},

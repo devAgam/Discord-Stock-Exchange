@@ -7,6 +7,8 @@ export const addStockToPortfolioValidator = joi.object({
   symbol: joi.string().pattern(new RegExp("^[a-zA-Z]+$")).required(),
   // quantity can only be numbers with a positive value and no decimals
   quantity: joi.number().positive().integer().required(),
+  // price can only be numbers with a positive value and decimals
+  price: joi.number().positive().required(),
 });
 
 export const getPortfolioValidator = joi.object({

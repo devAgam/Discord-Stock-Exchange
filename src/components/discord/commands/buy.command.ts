@@ -17,13 +17,20 @@ module.exports = {
         .setDescription("The quantity of the stock")
         .setRequired(true)
         .setMinValue(1)
+    )
+    .addIntegerOption((option) =>
+      option
+        .setName("price")
+        .setDescription("The price of the stock")
+        .setRequired(true)
     ),
 
   async execute(interaction: any) {
     const nonce = await addStockToPortfolioByDiscordId(
       interaction.user.id,
       interaction.options.getString("symbol").toUpperCase(),
-      interaction.options.getInteger("quantity")
+      interaction.options.getInteger("quantity"),
+      interaction.options.getInteger("price")
     );
 
     await interaction.reply(nonce.message);
