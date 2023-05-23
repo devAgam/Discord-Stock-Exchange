@@ -254,9 +254,9 @@ export async function addStockToPortfolioByDiscordId(
   const isInRange = await stockPriceIsInDayRange(stockSymbol, "2d", price);
 
   if (!isInRange) {
-    msgStr = "Price is not in day range";
+    msgStr = "Price is not in 2 day range";
     return {
-      error: "Price is not in day range",
+      error: "Price is not in 2 day range",
       httpStatus: 400,
       message: msgStr,
       success: false,
