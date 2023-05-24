@@ -72,11 +72,25 @@ export async function getPortfolioByDiscordId(discordId: string) {
     // get latest prices of all stocks in portfolio
     const ltps = await getMultipleLTPs(tickers);
     // add latest price to each holding where tickerSymbol matches
+    const totalHoldingValue = rawHoldings.holdings.reduce(
+      (total, holding) =>
+        total +
+        holding.quantity *
+          (ltps.quoteResponse.result.find(
+            (ltp) =>
+              convertYahooSymbolToSymbol(ltp.symbol) ===
+              holding.stock.tickerSymbol
+          )?.regularMarketPrice || 0),
+      0
+    );
+
     holdings = rawHoldings.holdings.map((holding) => {
       const ltp = ltps.quoteResponse.result.find(
         (ltp) =>
           convertYahooSymbolToSymbol(ltp.symbol) === holding.stock.tickerSymbol
       );
+      console.log(totalHoldingValue);
+      console.log(holding.quantity * (ltp?.regularMarketPrice || 0));
       return {
         id: holding.id,
         quantity: holding.quantity,
@@ -98,6 +112,12 @@ export async function getPortfolioByDiscordId(discordId: string) {
           (
             (((ltp?.regularMarketPrice || 0) - holding.avgPrice) /
               holding.avgPrice) *
+            100
+          ).toFixed(2) + "%",
+        weight:
+          (
+            ((holding.quantity * (ltp?.regularMarketPrice || 0)) /
+              totalHoldingValue) *
             100
           ).toFixed(2) + "%",
       };
@@ -277,10 +297,6 @@ export async function addStockToPortfolioByDiscordId(
     },
   });
 
-  const currentPrice = await getLTP(stockSymbol).then((ltp) => {
-    return ltp?.regularMarketPrice || 0;
-  });
-
   // if portfolio has the stock as a holding already, update the quantity by updating the holding
   if (portfolio?.holdings.length) {
     const holding = await prisma.holding.update({
@@ -289,7 +305,7 @@ export async function addStockToPortfolioByDiscordId(
       },
       data: {
         quantity: portfolio.holdings[0].quantity + stockQuantity,
-        avgPrice: getAveragePrice(portfolio.holdings[0].avgPrice, currentPrice),
+        avgPrice: (portfolio.holdings[0].avgPrice + price) / 2,
       },
     });
     msgStr = `Updated ${stockSymbol} quantity to ${stockQuantity}`;
@@ -310,7 +326,7 @@ export async function addStockToPortfolioByDiscordId(
       portfolioId: portfolio?.id,
       stockId: stock.id,
       quantity: stockQuantity,
-      avgPrice: currentPrice,
+      avgPrice: price,
     },
   });
   msgStr = `Added ${stockSymbol} to portfolio`;

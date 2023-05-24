@@ -26,16 +26,27 @@ function createPfTable(pf: any, username?: string) {
   let pfTable = new AsciiTable(
     "My Portfolio" + (username ? " - " + username : "")
   );
-  pfTable.setHeading("Symbol", "Quantity", "Avg", "LTP", "P/L", "Chg. %");
+  pfTable.setHeading(
+    "Symbol",
+    "Quantity",
+    "Avg",
+    "LTP",
+    "P/L",
+    "Chg. %",
+    "Current Value",
+    "Weight"
+  );
   if (!pf) return "No holdings found";
   pf.forEach((stock: any) => {
     pfTable.addRow(
-      stock.stock.name,
+      stock.stock.tickerSymbol,
       stock.quantity,
-      stock.avgPrice,
-      stock.stock.latestPrice,
-      stock.gain,
-      stock.gainPercentage
+      "₹ " + stock.avgPrice,
+      "₹ " + stock.stock.latestPrice,
+      "₹ " + stock.gain,
+      stock.gainPercentage,
+      "₹ " + stock.currentValue,
+      stock.weight
     );
   });
   return "```" + pfTable.toString() + "```";
